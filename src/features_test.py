@@ -1,6 +1,6 @@
 import numpy as np
-from preprocessing import load_deap_dataset, segment_signal
-from features import extract_features, extract_segment_features
+from src.preprocessing import load_deap_dataset, segment_signal
+from src.features import extract_features, extract_segment_features
 
 print("=== TEST FEATURE EXTRACTION ===")
 
@@ -13,10 +13,10 @@ X_segments, trial_idx = segment_signal(X, segment_length=15, fs=128, overlap=0.0
 print("Segmenti generati:", X_segments.shape)
 print("Trial_idx primi 20:", trial_idx[:20])
 
-# 3. Test diagnostico: stampa avanzamento
+# 3. Test diagnostico: estrazione singolo segmento
 print("\n=== Test diagnostico: estrazione feature segmento per segmento ===")
 
-for i in range(0, min(300, len(X_segments))):  # limitiamo a 300 per velocità
+for i in range(0, min(300, len(X_segments))):
     if i % 50 == 0:
         print(f"Processing segment {i}/{len(X_segments)}")
     _ = extract_segment_features(X_segments[i])
