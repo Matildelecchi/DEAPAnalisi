@@ -22,8 +22,9 @@ import os
 import pickle
 import numpy as np
 
-RAW_DIR = "data/raw/"
-PRE_DIR = "data/preprocessed/"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RAW_DIR = os.path.join(BASE_DIR, "data", "raw")
+PRE_DIR = os.path.join(BASE_DIR, "data", "preprocessed")
 
 FS = 128  # sampling rate dei file preprocessati DEAP
 N_EEG_CHANNELS = 32  # canali 0-31 = EEG, 32-39 = periferici
@@ -56,13 +57,6 @@ def load_deap_dataset(raw_dir=RAW_DIR, eeg_only=True):
     """
     Carica tutti i soggetti presenti in raw_dir e li concatena.
 
-    IMPORTANTE: viene restituito anche un array subject_ids, perché per dati
-    fisiologici uno split train/test casuale sui trial mescola trial dello
-    stesso soggetto tra train e test, sovrastimando le performance
-    (data leakage a livello di soggetto). Va usato subject_ids per fare uno
-    split o una cross-validation raggruppata per soggetto (es. GroupKFold /
-    LeaveOneGroupOut), come raccomandato dalle linee guida del progetto.
-
     Ritorna:
         X : np.ndarray (n_subjects * 40, n_canali, 8064)
         y : np.ndarray (n_subjects * 40, 4)
@@ -70,9 +64,24 @@ def load_deap_dataset(raw_dir=RAW_DIR, eeg_only=True):
     """
     X_list, y_list, subj_list = [], [], []
 
+    if not os.path.isdir(raw_dir):
+        raise FileNotFoundError(
+            f"Cartella del dataset non trovata: {raw_dir}\n"
+            "Verifica che i file DEAP .dat siano presenti in:\n"
+            f"  {RAW_DIR}\n"
+            "La struttura attesa è:\n"
+            "  DEAPAnalisi/data/raw/s01.dat\n"
+            "  DEAPAnalisi/data/raw/s02.dat\n"
+            "  ..."
+        )
+
     files = sorted(f for f in os.listdir(raw_dir) if f.endswith(".dat"))
     if not files:
-        raise FileNotFoundError(f"Nessun file .dat trovato in {raw_dir}")
+        raise FileNotFoundError(
+            f"Nessun file .dat trovato in: {raw_dir}\n"
+            "Inserisci nella cartella i file ufficiali DEAP in formato "
+            "'data_preprocessed_python', ad esempio s01.dat, s02.dat, ..."
+        )
 
     for filename in files:
         subject_id = filename.replace(".dat", "")
@@ -157,7 +166,7 @@ def normalize_signal(data, method="zscore", axis=-1):
 
 
 # ============================================================
-# 5. SALVATAGGIO PREPROCESSATO PER SOGGETTO (facoltativo, per cache su disco)
+# 5. SALVATAGGIO PREPROCESSATO PER SOGGETTO
 # ============================================================
 
 def preprocess_and_save_subject(path, out_dir=PRE_DIR, eeg_only=True):
@@ -173,7 +182,7 @@ def preprocess_and_save_subject(path, out_dir=PRE_DIR, eeg_only=True):
 
 
 # ============================================================
-# 6. MAIN (rigenera la cache preprocessata per tutti i soggetti)
+# 6. MAIN
 # ============================================================
 
 if __name__ == "__main__":
