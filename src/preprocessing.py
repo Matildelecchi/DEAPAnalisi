@@ -14,7 +14,8 @@ import os
 import pickle
 import numpy as np
 
-from filtering import filter_data   # <— integrazione corretta dei filtri
+# Import ASSOLUTO (compatibile con main.py)
+from src.filtering import filter_data
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RAW_DIR = os.path.join(BASE_DIR, "data", "raw")
@@ -109,10 +110,6 @@ def normalize_signal(data):
 # ============================================================
 
 def full_preprocess(data, apply_filter=True, apply_norm=True):
-    """
-    Applica filtraggio e normalizzazione ai dati EEG.
-    NON modifica i file preprocessati già salvati.
-    """
     if apply_filter:
         data = filter_data(data)
 
@@ -123,13 +120,10 @@ def full_preprocess(data, apply_filter=True, apply_norm=True):
 
 
 # ============================================================
-# 6. SALVATAGGIO PREPROCESSATO (NON MODIFICATO)
+# 6. SALVATAGGIO PREPROCESSATO
 # ============================================================
 
 def preprocess_and_save_subject(path, out_dir=PRE_DIR, eeg_only=True):
-    """
-    Manteniamo questa funzione invariata per NON rompere i file già creati.
-    """
     data, labels = load_deap_subject(path)
     if eeg_only:
         data = data[:, :N_EEG_CHANNELS, :]
@@ -140,10 +134,6 @@ def preprocess_and_save_subject(path, out_dir=PRE_DIR, eeg_only=True):
     print(f"Salvato: {out_path}")
     return out_path
 
-
-# ============================================================
-# 7. MAIN
-# ============================================================
 
 if __name__ == "__main__":
     print("=== Avvio preprocessing DEAP ===")
