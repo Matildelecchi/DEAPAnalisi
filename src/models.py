@@ -1,4 +1,25 @@
 """
+===============================================================
+    Machine Learning Emotion Recognition (2020)
+    
+    Autori:
+        - Lecchi Matilde (759875)
+        - Pellegrini Gaia (759909)
+        - Caredda Anna Eleonora (762576)
+
+    Anno Accademico: 2025/2026
+    Corso: Interfacce Uomo-Macchina
+
+    Descrizione:
+        Questo file fa parte del progetto basato sul paper
+        "Machine Learning Emotion Recognition (2020)", dedicato
+        all'analisi delle emozioni tramite segnali EEG attraverso
+        tecniche di preprocessing, estrazione di feature e modelli
+        di machine learning.
+===============================================================
+"""
+
+"""
 src/models.py
 Modelli di classificazione per DEAP (valence e arousal).
 
