@@ -54,23 +54,14 @@ Il modulo lavora in combinazione con src/preprocessing.py:
 # IMPORT DELLE LIBRERIE
 # ============================================================
 
-# NumPy viene utilizzato per:
-# - operazioni matematiche;
-# - gestione degli array;
-# - calcolo di media e deviazione standard;
-# - gestione delle feature.
 import numpy as np
 
 
-# welch viene utilizzato per calcolare la Power Spectral Density
-# del segnale EEG.
+#Ccalcolare la Power Spectral Density del segnale EEG
 from scipy.signal import welch
 
 
-# skew e kurtosis permettono di calcolare due statistiche
-# descrittive della distribuzione dei valori del segnale:
-# - skewness;
-# - kurtosis.
+# calcolare due statistiche descrittive della distribuzione dei valori del segnale
 from scipy.stats import skew, kurtosis
 
 
@@ -78,17 +69,12 @@ from scipy.stats import skew, kurtosis
 # PARAMETRI GENERALI
 # ============================================================
 
-# Frequenza di campionamento del segnale EEG.
-#
-# 128 Hz significa che vengono acquisiti 128 campioni
-# al secondo.
+# Frequenza di campionamento del segnale EEG
 FS = 128
 
 
 # Definizione delle principali bande di frequenza EEG.
-#
-# Ogni banda è rappresentata da:
-#     nome: (frequenza_minima, frequenza_massima)
+# Ogni banda è rappresentata da: nome: (frequenza_minima, frequenza_massima)
 #
 # Le bande considerate sono:
 # - theta: 4-8 Hz
@@ -103,22 +89,11 @@ BANDS = {
 }
 
 
-# Piccolo valore positivo utilizzato per evitare problemi
-# numerici quando si calcolano logaritmi o valori molto vicini
-# allo zero.
-#
-# Ad esempio:
-# np.log(0) non è definito e produrrebbe -inf.
+# Piccolo valore positivo utilizzato per evitare problemi numerici quando 
+# si calcolano logaritmi o valori molto vicini allo zero
 EPS = 1e-12
 
-
-# Compatibilità tra versioni differenti di NumPy.
-#
-# Nelle versioni più recenti di NumPy esiste np.trapezoid(),
-# mentre nelle versioni precedenti viene utilizzato np.trapz().
-#
-# Il codice cerca quindi prima trapezoid e, se non disponibile,
-# utilizza trapz.
+#Il codice cerca quindi prima trapezoid e, se non disponibile, utilizza trapz
 _trapz = getattr(np, "trapezoid", None) or np.trapz
 
 
@@ -129,54 +104,36 @@ _trapz = getattr(np, "trapezoid", None) or np.trapz
 def compute_psd(signal, fs=FS):
     """
     Calcola la Power Spectral Density (PSD) di un segnale.
-
-    La PSD descrive come la potenza del segnale è distribuita
-    nelle diverse frequenze.
-
+    La PSD descrive come la potenza del segnale è distribuita nelle diverse frequenze.
     Viene utilizzato il metodo di Welch, che divide il segnale
     in più finestre e calcola una stima mediata dello spettro.
 
     Parametri:
-        signal:
-            segnale EEG di un singolo canale.
-
-        fs:
-            frequenza di campionamento del segnale.
-            Per default è 128 Hz.
+        signal: segnale EEG di un singolo canale.
+        fs: frequenza di campionamento del segnale. Per default è 128 Hz.
 
     Restituisce:
-        freqs:
-            frequenze considerate.
-
-        psd:
-            potenza associata alle diverse frequenze.
+        freqs: frequenze considerate.
+        psd: potenza associata alle diverse frequenze.
     """
 
-    # Imposta la lunghezza della finestra utilizzata da Welch.
-    #
-    # fs * 2 corrisponde a 2 secondi di segnale.
-    #
-    # min() evita di utilizzare una finestra più lunga
-    # del segnale disponibile.
+    # Imposta la lunghezza della finestra utilizzata da Welch
+    # fs * 2 corrisponde a 2 secondi di segnale min() evita di utilizzare una finestra più lunga del segnale disponibile
     nperseg = min(
         fs * 2,
         len(signal)
     )
 
-
-    # Calcola la Power Spectral Density utilizzando
-    # il metodo di Welch.
-    #
-    # freqs contiene le frequenze.
-    # psd contiene la potenza associata a ciascuna frequenza.
+    # Calcola la Power Spectral Density utilizzando il metodo di Welch
+    # freqs contiene le frequenze
+    # psd contiene la potenza associata a ciascuna frequenza
     freqs, psd = welch(
         signal,
         fs=fs,
         nperseg=nperseg
     )
-
-
-    # Restituisce frequenze e PSD.
+    
+    # Restituisce frequenze e PSD
     return freqs, psd
 
 
@@ -186,59 +143,35 @@ def compute_psd(signal, fs=FS):
 
 def band_power(freqs, psd, band):
     """
-    Calcola la potenza del segnale all'interno di una specifica
-    banda di frequenza EEG.
-
-    La potenza viene calcolata integrando la PSD nell'intervallo
-    di frequenze corrispondente alla banda.
+    Calcola la potenza del segnale all'interno di una specifica banda di frequenza EEG.
+    La potenza viene calcolata integrando la PSD nell'intervallo di frequenze corrispondente alla banda.
 
     Parametri:
-        freqs:
-            array delle frequenze.
-
-        psd:
-            Power Spectral Density.
-
-        band:
-            nome della banda EEG da analizzare.
+        freqs: array delle frequenze.
+        psd: Power Spectral Density.
+        band: nome della banda EEG da analizzare.
 
     Restituisce:
         La potenza della banda considerata.
     """
 
-    # Recupera i limiti inferiore e superiore della banda.
-    #
-    # Ad esempio, per "alpha":
-    # low = 8
-    # high = 13
+    # Recupera i limiti inferiore e superiore della banda
     low, high = BANDS[band]
 
-
-    # Crea una maschera booleana che seleziona solamente
-    # le frequenze comprese nell'intervallo della banda.
+    # Crea una maschera booleana che seleziona solamente le frequenze comprese nell'intervallo della banda
     idx = np.logical_and(
         freqs >= low,
         freqs <= high
     )
 
-
-    # Controlla se esiste almeno una frequenza appartenente
-    # alla banda.
-    #
-    # Se non viene trovata nessuna frequenza, restituisce
-    # EPS per evitare problemi nei calcoli successivi.
+    # Controlla se esiste almeno una frequenza appartenente alla banda
+    # Se non viene trovata nessuna frequenza, restituisce EPS per evitare problemi nei calcoli successivi
     if not idx.any():
         return EPS
 
-
-    # Calcola la potenza della banda integrando la PSD
-    # rispetto alla frequenza.
-    #
-    # _trapz rappresenta np.trapezoid oppure np.trapz,
-    # a seconda della versione di NumPy disponibile.
-    #
-    # EPS viene aggiunto per evitare che il risultato sia
-    # esattamente zero.
+    # Calcola la potenza della banda integrando la PSD rispetto alla frequenza
+    # _trapz rappresenta np.trapezoid oppure np.trapz, a seconda della versione di NumPy disponibile
+    # EPS viene aggiunto per evitare che il risultato sia esattamente zero
     return _trapz(
         psd[idx],
         freqs[idx]
@@ -251,16 +184,13 @@ def band_power(freqs, psd, band):
 
 def log_band_power(freqs, psd, band):
     """
-    Calcola il logaritmo naturale della potenza contenuta
-    in una determinata banda EEG.
+    Calcola il logaritmo naturale della potenza contenuta in una determinata banda EEG.
 
-    Il logaritmo viene utilizzato per comprimere la scala
-    dei valori della potenza e rendere le feature più gestibili
-    dai modelli di Machine Learning.
+    Il logaritmo viene utilizzato per comprimere la scala dei valori della potenza e 
+    rendere le feature più gestibili dai modelli di Machine Learning.
     """
 
-    # Calcola prima la potenza della banda e successivamente
-    # il suo logaritmo naturale.
+    # Calcola prima la potenza della banda e il suo logaritmo naturale
     return np.log(
         band_power(freqs, psd, band)
     )
@@ -272,8 +202,7 @@ def log_band_power(freqs, psd, band):
 
 def differential_entropy(freqs, psd, band):
     """
-    Calcola la Differential Entropy (DE) associata
-    a una determinata banda EEG.
+    Calcola la Differential Entropy (DE) associata a una determinata banda EEG.
 
     Nel codice viene utilizzata la relazione:
 
@@ -285,19 +214,11 @@ def differential_entropy(freqs, psd, band):
     per descrivere la distribuzione del segnale EEG.
     """
 
-    # Calcola la potenza contenuta nella banda richiesta.
     bp = band_power(
         freqs,
         psd,
         band
     )
-
-
-    # Calcola la Differential Entropy utilizzando
-    # la formula implementata nel progetto.
-    #
-    # EPS viene aggiunto per aumentare la stabilità numerica
-    # nel caso di potenze molto piccole.
     return 0.5 * np.log(
         2 * np.pi * np.e * bp + EPS
     )
@@ -323,17 +244,13 @@ def extract_channel_features(signal):
         - skewness;
         - kurtosis.
 
-    Restituisce un array contenente tutte le feature
-    del canale.
+    Restituisce un array contenente tutte le feature del canale.
     """
 
-
-    # Calcola lo spettro del segnale tramite Welch.
+    # Calcola lo spettro del segnale tramite Welch
     freqs, psd = compute_psd(signal)
 
-
-    # Lista vuota nella quale verranno raccolte
-    # tutte le feature del canale.
+    # Lista vuota nella quale verranno raccolte tutte le feature del canale
     features = []
 
 
@@ -341,12 +258,10 @@ def extract_channel_features(signal):
     # FEATURE FREQUENZIALI
     # ========================================================
 
-    # Scorre tutte le bande EEG definite precedentemente:
-    # theta, alpha, beta e gamma.
+    # Scorre tutte le bande EEG definite precedentemente: theta, alpha, beta e gamma
     for band in BANDS:
 
-        # Calcola il logaritmo della potenza della banda
-        # e aggiunge il risultato alla lista delle feature.
+        # Calcola il logaritmo della potenza della banda e aggiunge il risultato alla lista delle feature
         features.append(
             log_band_power(
                 freqs,
@@ -355,9 +270,7 @@ def extract_channel_features(signal):
             )
         )
 
-
-        # Calcola la Differential Entropy della stessa banda
-        # e la aggiunge alle feature.
+        # Calcola la Differential Entropy della stessa banda e la aggiunge alle feature
         features.append(
             differential_entropy(
                 freqs,
@@ -371,31 +284,21 @@ def extract_channel_features(signal):
     # STATISTICHE TEMPORALI
     # ========================================================
 
-    # Calcola la media dei campioni del segnale.
+    # Calcola la media dei campioni del segnale.ì
     mean = np.mean(signal)
 
-
-    # Calcola la deviazione standard del segnale.
-    #
-    # Indica quanto i valori si discostano mediamente
-    # dalla loro media.
+    # Calcola la deviazione standard del segnale
+    # Indica quanto i valori si discostano dalla loro media
     std = np.std(signal)
 
-
-    # Calcola la skewness, cioè una misura dell'asimmetria
-    # della distribuzione dei valori del segnale.
-    #
-    # nan_policy="omit" indica di ignorare eventuali valori NaN.
+    # Calcola la misura dell'asimmetria della distribuzione dei valori del segnale
+    # nan_policy="omit" indica di ignorare eventuali valori NaN
     sk = skew(
         signal,
         nan_policy="omit"
     )
 
-
-    # Calcola la kurtosis, che descrive la forma
-    # della distribuzione dei valori.
-    #
-    # Anche in questo caso eventuali NaN vengono ignorati.
+    # Calcola la forma della distribuzione dei valori
     ku = kurtosis(
         signal,
         nan_policy="omit"
@@ -406,26 +309,20 @@ def extract_channel_features(signal):
     # GESTIONE DI EVENTUALI NaN
     # ========================================================
 
-    # Se la skewness restituisce NaN, viene sostituita
-    # con il valore 0.
-    #
-    # Questo evita di introdurre valori NaN nella matrice
-    # finale delle feature.
+    # Se la skewness restituisce NaN, viene sostituita con il valore 0
+    # Questo evita di introdurre valori NaN nella matrice finale delle feature
     if np.isnan(sk):
         sk = 0.0
 
-
-    # Se la kurtosis restituisce NaN, viene anch'essa
-    # sostituita con 0.
+    # Se la kurtosis restituisce NaN, viene anch'essa sostituita con 0
     if np.isnan(ku):
         ku = 0.0
 
-
     # Aggiunge alle feature le quattro statistiche temporali:
-    # - media;
-    # - deviazione standard;
-    # - skewness;
-    # - kurtosis.
+    # - media
+    # - deviazione standard
+    # - skewness
+    # - kurtosis
     features.extend([
         mean,
         std,
@@ -433,8 +330,7 @@ def extract_channel_features(signal):
         ku
     ])
 
-
-    # Converte la lista delle feature in un array NumPy.
+    # Converte la lista delle feature in un array NumPy
     return np.array(features)
 
 
@@ -455,13 +351,11 @@ def extract_segment_features(segment):
     """
 
     # Scorre tutti i canali del segmento.
-    #
     # Per ogni canale:
-    #   1. estrae le relative feature;
-    #   2. restituisce un vettore di feature.
+    #   1. estrae le relative feature
+    #   2. restituisce un vettore di feature
     #
-    # np.concatenate() unisce tutti questi vettori
-    # in un unico vettore rappresentativo dell'intero segmento.
+    # np.concatenate() unisce tutti questi vettori in un unico vettore rappresentativo dell'intero segmento
     return np.concatenate([
         extract_channel_features(ch)
         for ch in segment
@@ -499,17 +393,13 @@ def extract_features(
     # CONTROLLO DELLA COERENZA DEI DATI
     # ========================================================
 
-    # Verifica che ci sia un subject ID per ogni trial.
-    #
-    # y.shape[0] rappresenta il numero di trial.
+    # Verifica che ci sia un subject ID per ogni trial
+    # y.shape[0] rappresenta il numero di trial
     assert len(subject_ids) == y.shape[0], \
         "subject_ids deve essere per trial"
 
-
-    # Verifica che esista un trial_idx per ogni segmento.
-    #
-    # Ogni segmento deve infatti essere associato
-    # al trial originale dal quale proviene.
+    # Verifica che esista un trial_idx per ogni segmento
+    # Ogni segmento deve infatti essere associato al trial originale dal quale proviene
     assert X_segments.shape[0] == len(trial_idx), \
         "trial_idx deve avere un indice per segmento"
 
@@ -519,22 +409,17 @@ def extract_features(
     # ========================================================
 
     # Trasforma i valori originali di valence in due classi:
-    #
-    # valence >= 5 -> 1
-    # valence < 5  -> 0
-    #
-    # y[:, 0] indica la colonna contenente la valence.
+    # - valence >= 5 -> 1
+    # - valence < 5  -> 0
+    # y[:, 0] indica la colonna contenente la valence
     y_valence = (
         y[:, 0] >= 5
     ).astype(int)
 
-
     # Trasforma allo stesso modo i valori di arousal:
-    #
-    # arousal >= 5 -> 1
-    # arousal < 5  -> 0
-    #
-    # y[:, 1] indica la colonna contenente l'arousal.
+    # - arousal >= 5 -> 1
+    # - arousal < 5  -> 0
+    # y[:, 1] indica la colonna contenente l'arousal
     y_arousal = (
         y[:, 1] >= 5
     ).astype(int)
@@ -544,25 +429,18 @@ def extract_features(
     # PROPAGAZIONE DELLE LABEL AI SEGMENTI
     # ========================================================
 
-    # Ogni segmento eredita la label di valence
-    # del trial originale a cui appartiene.
-    #
-    # trial_idx contiene, per ogni segmento, l'indice
-    # del trial originale.
+    # Ogni segmento eredita la label di valence del trial originale a cui appartiene
+    # trial_idx contiene, per ogni segmento, l'indice del trial originale
     y_valence_seg = y_valence[
         trial_idx
     ]
 
-
-    # Ogni segmento eredita anche la label di arousal
-    # del trial originale.
+    # Ogni segmento eredita anche la label di arousal del trial originale
     y_arousal_seg = y_arousal[
         trial_idx
     ]
 
-
-    # Allo stesso modo viene associato a ogni segmento
-    # l'identificativo del soggetto.
+    # Allo stesso modo viene associato a ogni segmento l'identificativo del soggetto
     subject_ids_seg = subject_ids[
         trial_idx
     ]
@@ -572,13 +450,10 @@ def extract_features(
     # ESTRAZIONE DELLE FEATURE
     # ========================================================
 
-    # Estrae le feature da ogni segmento EEG.
-    #
-    # Per ogni segmento viene chiamata
-    # extract_segment_features().
+    # Estrae le feature da ogni segmento EEG
+    # Per ogni segmento viene chiamata extract_segment_features()
     #
     # Il risultato finale è una matrice:
-    #
     #   righe    -> segmenti EEG
     #   colonne  -> feature estratte
     X_features = np.array([
@@ -586,20 +461,11 @@ def extract_features(
         for seg in X_segments
     ])
 
-
     # Restituisce:
-    #
-    # X_features:
-    #   matrice delle feature.
-    #
-    # y_valence_seg:
-    #   classe di valence di ogni segmento.
-    #
-    # y_arousal_seg:
-    #   classe di arousal di ogni segmento.
-    #
-    # subject_ids_seg:
-    #   soggetto associato a ogni segmento.
+    # X_features: matrice delle feature
+    # y_valence_seg: classe di valence di ogni segmento
+    # y_arousal_seg: classe di arousal di ogni segmento
+    # subject_ids_seg: soggetto associato a ogni segmento
     return (
         X_features,
         y_valence_seg,
