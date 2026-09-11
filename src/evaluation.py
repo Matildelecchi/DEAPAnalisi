@@ -3,9 +3,9 @@
     Machine Learning Emotion Recognition (2020)
 
     Autori:
-        - Lecchi Matilde (759875)
-        - Pellegrini Gaia (759909)
-        - Caredda Anna Eleonora (762576)
+        - Lecchi Matilde 759875
+        - Pellegrini Gaia 759909
+        - Caredda Anna Eleonora 762576
 
     Anno Accademico: 2025/2026
     Corso: Interfacce Uomo-Macchina
@@ -20,8 +20,6 @@
 """
 
 """
-src/evaluation.py
-
 Questo modulo contiene tutte le funzioni utilizzate per valutare
 le prestazioni dei modelli di Machine Learning applicati al
 dataset DEAP.
@@ -98,10 +96,8 @@ from sklearn.metrics import (
     auc,
 )
 
-
 # I dati appartenenti allo stesso soggetto non devono comparire contemporaneamente nel training e nel test
 from sklearn.model_selection import GroupKFold
-
 
 # Per creare una directory se questa non esiste
 from src.utils import ensure_dir
@@ -207,7 +203,6 @@ def evaluate_model(model, X_test, y_test):
         except Exception:
             pass
 
-
     # Restituisce il dizionario contenente le metriche
     return metrics
 
@@ -248,11 +243,9 @@ def cross_validate_subject_independent(
         - avg: media delle metriche sui vari fold.
     """
 
-
     # Crea l'oggetto GroupKFold.
     # Con n_splits=5 il dataset viene diviso in 5 fold, mantenendo separati i gruppi, cioè i soggetti
     gkf = GroupKFold(n_splits=n_splits)
-
 
     # Lista che conterrà le metriche ottenute in ciascun fold.
     fold_metrics = []
@@ -329,7 +322,6 @@ def cross_validate_subject_independent(
         if key not in ("confusion_matrix", "fold")
     }
 
-
     # Restituisce metriche dei singoli fold e media
     return fold_metrics, avg
 
@@ -367,10 +359,8 @@ def cross_validate_leave_one_trial_out(
         - media delle metriche sui trial.
     """
 
-
     # Recupera tutti gli identificativi distinti dei trial
     unique_trials = np.unique(trial_ids)
-
 
     # Lista in cui verranno memorizzate le metriche
     fold_metrics = []
@@ -433,7 +423,6 @@ def cross_validate_leave_one_trial_out(
         if key != "confusion_matrix"
     }
 
-
     # Restituisce le metriche dei singoli trial e la loro media
     return fold_metrics, avg
 
@@ -462,7 +451,6 @@ def plot_confusion_matrix(
     # os.path.dirname() estrae solamente la cartella dal percorso completo
     ensure_dir(os.path.dirname(save_path))
 
-
     # Calcola la confusion matrix confrontando:
     # - classi reali
     # - classi predette
@@ -471,10 +459,8 @@ def plot_confusion_matrix(
         y_pred
     )
 
-
     # Crea una nuova figura con dimensione 5x4 pollici
     plt.figure(figsize=(5, 4))
-
 
     # Visualizza la matrice come immagine
     # cmap="Blues" scala di colori blu
@@ -523,10 +509,8 @@ def plot_roc_curve(
     riassuntiva delle prestazioni del classificatore.
     """
 
-
     # Assicura che la directory di destinazione esista
     ensure_dir(os.path.dirname(save_path))
-
 
     # Calcola:
     # - FPR: False Positive Rate
@@ -537,17 +521,14 @@ def plot_roc_curve(
         y_score
     )
 
-
     # Calcola l'area sotto la curva ROC
     roc_auc = auc(
         fpr,
         tpr
     )
 
-
     # Crea una nuova figura
     plt.figure(figsize=(5, 4))
-
 
     # Disegna la curva ROC
     # Nel label viene mostrato anche il valore dell'AUC arrotondato a tre cifre decimali
@@ -556,7 +537,6 @@ def plot_roc_curve(
         tpr,
         label=f"AUC = {roc_auc:.3f}"
     )
-
 
     # Disegna la diagonale corrispondente al comportamento di un classificatore casuale
     plt.plot(
@@ -587,7 +567,6 @@ def save_results_csv(results, filename):
 
     # Crea la directory contenitrice del file, se necessario
     ensure_dir(os.path.dirname(filename))
-
 
     # Converte i risultati in un DataFrame
     # .T effettua la trasposizione del DataFrame

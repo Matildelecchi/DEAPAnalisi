@@ -3,9 +3,9 @@
     Machine Learning Emotion Recognition (2020)
 
     Autori:
-        - Lecchi Matilde (759875)
-        - Pellegrini Gaia (759909)
-        - Caredda Anna Eleonora (762576)
+        - Lecchi Matilde 759875
+        - Pellegrini Gaia 759909
+        - Caredda Anna Eleonora 762576
 
     Anno Accademico: 2025/2026
     Corso: Interfacce Uomo-Macchina
@@ -131,7 +131,6 @@ for i in range(
             f"Processing segment {i}/{len(X_segments)}"
         )
 
-
     # Estrae le feature dal segmento corrente
     # Il risultato viene assegnato a "_" perché in questa fase interessa solamente verificare 
     # che la funzione funzioni correttamente, non utilizzare direttamente le feature
@@ -155,7 +154,6 @@ print(
     "\n=== Test extract_features completo ==="
 )
 
-
 # Esegue l'estrazione delle feature su tutti i segmenti
 # X_features: matrice contenente le feature estratte
 # y_valence_seg: etichette di valence associate ai segmenti
@@ -168,7 +166,6 @@ X_features, y_valence_seg, y_arousal_seg, subj_seg = extract_features(
     subject_ids
 )
 
-
 # Stampa la dimensione della matrice delle feature, informazione che permette di controllare:
 # - quanti segmenti sono stati elaborati
 # - quante feature sono state estratte per ogni segmento
@@ -177,20 +174,17 @@ print(
     X_features.shape
 )
 
-
 # Stampa la dimensione delle etichette di valence associate ai segmenti
 print(
     "Valence seg shape:",
     y_valence_seg.shape
 )
 
-
 # Stampa la dimensione delle etichette di arousal associate ai segmenti
 print(
     "Arousal seg shape:",
     y_arousal_seg.shape
 )
-
 
 # Stampa la dimensione degli identificativi dei soggetti associati ai segmenti
 print(
@@ -210,7 +204,6 @@ print(
     "\nNaN nelle feature:",
     np.isnan(X_features).sum()
 )
-
 
 # Verifica quanti valori Inf (infinito) sono presenti nelle feature
 # Anche in questo caso .sum() conta il numero totale di valori che soddisfano la condizione
@@ -245,7 +238,6 @@ print(
     y[trial_idx[i], 0]
 )
 
-
 # Stampa la valence assegnata al segmento dalla funzione extract_features()
 # Serve per verificare che l'etichetta del segmento corrisponda a quella del trial originale
 print(
@@ -260,7 +252,6 @@ print(
     "  arousal originale:",
     y[trial_idx[i], 1]
 )
-
 
 # Stampa l'arousal assegnato al segmento
 # Anche questo valore viene confrontato con quello originale per verificare 

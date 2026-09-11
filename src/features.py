@@ -3,9 +3,9 @@
     Machine Learning Emotion Recognition (2020)
 
     Autori:
-        - Lecchi Matilde (759875)
-        - Pellegrini Gaia (759909)
-        - Caredda Anna Eleonora (762576)
+        - Lecchi Matilde 759875
+        - Pellegrini Gaia 759909
+        - Caredda Anna Eleonora 762576
 
     Anno Accademico: 2025/2026
     Corso: Interfacce Uomo-Macchina
@@ -56,10 +56,8 @@ Il modulo lavora in combinazione con src/preprocessing.py:
 
 import numpy as np
 
-
-#Ccalcolare la Power Spectral Density del segnale EEG
+#Calcolare la Power Spectral Density del segnale EEG
 from scipy.signal import welch
-
 
 # calcolare due statistiche descrittive della distribuzione dei valori del segnale
 from scipy.stats import skew, kurtosis
@@ -71,7 +69,6 @@ from scipy.stats import skew, kurtosis
 
 # Frequenza di campionamento del segnale EEG
 FS = 128
-
 
 # Definizione delle principali bande di frequenza EEG.
 # Ogni banda è rappresentata da: nome: (frequenza_minima, frequenza_massima)
@@ -87,7 +84,6 @@ BANDS = {
     "beta":  (13, 30),
     "gamma": (30, 45),
 }
-
 
 # Piccolo valore positivo utilizzato per evitare problemi numerici quando 
 # si calcolano logaritmi o valori molto vicini allo zero
