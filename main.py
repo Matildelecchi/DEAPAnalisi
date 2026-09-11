@@ -44,6 +44,10 @@ import os
 # Libreria utilizzata per operazioni numeriche e gestione degli array.
 import numpy as np
 
+#per stampare a schermo il procedimento
+import sys
+sys.stdout.reconfigure(line_buffering=True)
+
 # Permette di filtrare alcuni warning prodotti dalle librerie
 # durante l'esecuzione della pipeline.
 import warnings
@@ -52,6 +56,8 @@ import warnings
 # ============================================================
 # IMPORT DEI MODULI DEL PROGETTO
 # ============================================================
+
+from src.filtering import filter_data
 
 # Funzioni relative al preprocessing del dataset:
 # - load_deap_dataset: carica il dataset DEAP
@@ -101,6 +107,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 # comparire durante alcune operazioni numeriche.
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 # ============================================================
 # DIRECTORY
@@ -165,6 +172,8 @@ def run_baseline(dimension="valence"):
     # eeg_only=True indica che vengono utilizzati solamente
     # i canali EEG e non altri segnali fisiologici del dataset.
     X, y_raw, subject_ids = load_deap_dataset(RAW_DIR, eeg_only=True)
+    
+    X = filter_data(X)
 
     # --------------------------------------------------------
     # SEGMENTAZIONE
@@ -390,6 +399,8 @@ def run_custom(dimension="valence"):
         RAW_DIR,
         eeg_only=True
     )
+    
+    X = filter_data(X)
 
 
     # --------------------------------------------------------

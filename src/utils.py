@@ -239,7 +239,7 @@ def binarize_labels(
     # True  -> 1
     # False -> 0
     return (
-        y[:, col] > threshold
+        y[:, col] >= threshold
     ).astype(int)
 
 
