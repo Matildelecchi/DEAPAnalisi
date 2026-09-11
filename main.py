@@ -3,9 +3,9 @@
     Machine Learning Emotion Recognition (2020)
     
     Autori:
-        - Lecchi Matilde (759875)
-        - Pellegrini Gaia (759909)
-        - Caredda Anna Eleonora (762576)
+        - Lecchi Matilde 759875
+        - Pellegrini Gaia 759909
+        - Caredda Anna Eleonora 762576
 
     Anno Accademico: 2025/2026
     Corso: Interfacce Uomo-Macchina
@@ -20,13 +20,9 @@
 """
 
 """
-main.py — Pipeline DEAPAnalisi
-
 Funzionalità:
-- Esecuzione della pipeline baseline, basata sull'approccio
-  descritto da Koelstra et al. (2012).
-- Esecuzione della pipeline custom, con segmentazione e
-  normalizzazione personalizzate.
+- Esecuzione della pipeline baseline, basata sull'approccio descritto da Koelstra et al. (2012).
+- Esecuzione della pipeline custom, con segmentazione e normalizzazione personalizzate.
 - Addestramento e confronto di diversi classificatori.
 - Valutazione tramite metriche di classificazione.
 - Generazione delle matrici di confusione e delle curve ROC.
@@ -37,19 +33,17 @@ Funzionalità:
 # IMPORT DELLE LIBRERIE
 # ============================================================
 
-# Permette di gestire i percorsi dei file e delle directory
-# in maniera indipendente dal sistema operativo.
+# Gestire i percorsi dei file e delle directory in maniera indipendente dal sistema operativo
 import os
 
-# Libreria utilizzata per operazioni numeriche e gestione degli array.
 import numpy as np
 
-#per stampare a schermo il procedimento
+#Stampare a schermo il procedimento
 import sys
+
 sys.stdout.reconfigure(line_buffering=True)
 
-# Permette di filtrare alcuni warning prodotti dalle librerie
-# durante l'esecuzione della pipeline.
+# Filtrare alcuni warning prodotti dalle librerie durante l'esecuzione della pipeline
 import warnings
 
 
@@ -65,10 +59,10 @@ from src.filtering import filter_data
 # - normalize_signal: normalizza i segmenti
 from src.preprocessing import load_deap_dataset, segment_signal, normalize_signal
 
-# Funzione che estrae le feature dai segnali EEG.
+# Funzione che estrae le feature dai segnali EEG
 from src.features import extract_features
 
-# Funzioni per creare e addestrare i diversi classificatori.
+# Funzioni per creare e addestrare i diversi classificatori
 from src.models import (
     train_gaussian_nb,
     train_svm,
@@ -99,39 +93,31 @@ from src.utils import save_model_pickle, ensure_dir
 # ============================================================
 # FILTRO WARNING
 # ============================================================
-# Ignora i UserWarning prodotti dalle librerie utilizzate.
-# Questo permette di avere un output da terminale più pulito.
 warnings.filterwarnings("ignore", category=UserWarning)
-
-# Ignora anche i RuntimeWarning, ad esempio quelli che possono
-# comparire durante alcune operazioni numeriche.
 warnings.filterwarnings("ignore", category=RuntimeWarning)
-
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 # ============================================================
 # DIRECTORY
 # ============================================================
 
-# Directory contenente i dati grezzi del dataset DEAP.
+# Directory contenente i dati grezzi del dataset DEAP
 RAW_DIR = "data/raw/"
 
-# Directory in cui vengono salvati i risultati della pipeline
-# baseline.
+# Directory in cui vengono salvati i risultati della pipelinebaseline
 BASELINE_DIR = "results/baseline/"
 
-# Directory in cui vengono salvati i risultati della pipeline
-# custom.
+# Directory in cui vengono salvati i risultati della pipeline custom
 CUSTOM_DIR = "results/custom/"
 
-# Directory contenente i modelli di machine learning salvati.
+# Directory contenente i modelli di machine learning salvati
 MODELS_DIR = "results/models/"
 
-# Directory contenente i grafici generati durante la valutazione.
+# Directory contenente i grafici generati durante la valutazione
 FIGURES_DIR = "results/figures/"
 
-# Assicura che tutte le directory necessarie esistano.
-# Se una directory non esiste, ensure_dir() la crea.
+# Assicura che tutte le directory necessarie esistano
+# Se una directory non esiste, ensure_dir() la crea
 for d in [BASELINE_DIR, CUSTOM_DIR, MODELS_DIR, FIGURES_DIR]:
     ensure_dir(d)
 
@@ -142,8 +128,7 @@ for d in [BASELINE_DIR, CUSTOM_DIR, MODELS_DIR, FIGURES_DIR]:
 
 def run_baseline(dimension="valence"):
     """
-    Esegue la pipeline baseline per una delle due dimensioni
-    emotive considerate dal dataset DEAP:
+    Esegue la pipeline baseline per una delle due dimensioni emotive considerate dal dataset DEAP:
     - valence
     - arousal
 
@@ -154,8 +139,7 @@ def run_baseline(dimension="valence"):
     - Leave-One-Trial-Out cross-validation per ogni soggetto.
     """
 
-    # Stampa a terminale quale configurazione della baseline
-    # sta per essere eseguita.
+    # Stampa a terminale quale configurazione della baseline sta per essere eseguita
     print(f"\n=== BASELINE ({dimension}) ===")
 
     # --------------------------------------------------------
@@ -163,14 +147,10 @@ def run_baseline(dimension="valence"):
     # --------------------------------------------------------
 
     # Carica i segnali EEG dal dataset DEAP.
-    #
-    # X            -> segnali EEG
-    # y_raw        -> etichette originali relative alle emozioni
-    # subject_ids  -> identificativo del soggetto associato
-    #                 a ciascun trial
-    #
-    # eeg_only=True indica che vengono utilizzati solamente
-    # i canali EEG e non altri segnali fisiologici del dataset.
+    # X -> segnali EEG
+    # y_raw -> etichette originali relative alle emozioni
+    # subject_ids -> identificativo del soggetto associato a ciascun trial
+    # eeg_only=True indica che vengono utilizzati solamente i canali EEG e non altri segnali fisiologici del dataset
     X, y_raw, subject_ids = load_deap_dataset(RAW_DIR, eeg_only=True)
     
     X = filter_data(X)
@@ -179,14 +159,10 @@ def run_baseline(dimension="valence"):
     # SEGMENTAZIONE
     # --------------------------------------------------------
 
-    # Divide ogni segnale EEG in segmenti della durata di
-    # 60 secondi.
-    #
-    # overlap=0.0 significa che i segmenti non si sovrappongono.
-    #
-    # segments  -> segmenti EEG ottenuti
-    # trial_idx -> indice del trial originale a cui appartiene
-    #              ogni segmento
+    # Divide ogni segnale EEG in segmenti della durata di 60 secondi
+    # overlap=0.0 significa che i segmenti non si sovrappongono
+    # segments -> segmenti EEG ottenuti
+    # trial_idx -> indice del trial originale a cui appartiene ogni segmento
     segments, trial_idx = segment_signal(X, segment_length=60, overlap=0.0)
 
     # --------------------------------------------------------
@@ -200,10 +176,10 @@ def run_baseline(dimension="valence"):
     # - etichetta di arousal
     # - identificativo del soggetto
     #
-    # X_features      -> matrice finale delle feature
-    # y_valence_seg   -> etichette valence per segmento
-    # y_arousal_seg   -> etichette arousal per segmento
-    # subj_seg        -> soggetto associato a ogni segmento
+    # X_features -> matrice finale delle feature
+    # y_valence_seg -> etichette valence per segmento
+    # y_arousal_seg -> etichette arousal per segmento
+    # subj_seg -> soggetto associato a ogni segmento
     X_features, y_valence_seg, y_arousal_seg, subj_seg = extract_features(
         segments, y_raw, trial_idx, subject_ids
     )
@@ -216,57 +192,43 @@ def run_baseline(dimension="valence"):
     # - valence: quanto l'emozione è positiva o negativa
     # - arousal: quanto l'emozione è attivante o rilassante
     #
-    # In base al parametro passato alla funzione viene scelta
-    # una delle due serie di etichette.
+    # In base al parametro passato alla funzione viene scelta una delle due serie di etichette
     y_seg = y_valence_seg if dimension == "valence" else y_arousal_seg
 
-    # Dizionario nel quale verranno memorizzate le metriche
-    # ottenute separatamente per ogni soggetto.
+    # Dizionario nel quale verranno memorizzate le metriche ottenute separatamente per ogni soggetto
     results_per_subject = {}
 
     # ========================================================
     # VALUTAZIONE SOGGETTO PER SOGGETTO
     # ========================================================
 
-    # np.unique() restituisce tutti gli identificativi dei
-    # soggetti presenti nel dataset.
-    #
-    # La baseline esegue una valutazione separata per ciascun
-    # soggetto.
+    # np.unique() restituisce tutti gli identificativi dei soggetti presenti nel dataset
+    # La baseline esegue una valutazione separata per ciascun soggetto
     for subj in np.unique(subj_seg):
         
-        # Crea una maschera booleana che seleziona solamente
-        # i segmenti appartenenti al soggetto corrente.
+        # Crea una maschera booleana che seleziona solamente i segmenti appartenenti al soggetto corrente
         mask = subj_seg == subj
-        # Estrae feature ed etichette relative al soggetto.
+        # Estrae feature ed etichette relative al soggetto
         X_subj, y_subj = X_features[mask], y_seg[mask]
 
         # ----------------------------------------------------
         # CONTROLLO SULLE CLASSI
         # ----------------------------------------------------
 
-        # Per poter eseguire una classificazione binaria è
-        # necessario che siano presenti entrambe le classi.
-        #
-        # Se il soggetto contiene una sola classe, viene
-        # ignorato perché non sarebbe possibile effettuare
-        # una corretta valutazione.
+        # Per poter eseguire una classificazione binaria è necessario che siano presenti entrambe le classi
+        # Se il soggetto contiene una sola classe, viene ignorato perché non sarebbe possibile effettuare una corretta valutazione
         if len(np.unique(y_subj)) < 2:
             continue
 
-         # Crea un identificativo locale per ogni segmento.
-        #
-        # Questi ID vengono utilizzati dalla funzione di
-        # Leave-One-Trial-Out cross-validation.
+        # Crea un identificativo locale per ogni segmento
+        # Questi ID vengono utilizzati dalla funzione di Leave-One-Trial-Out cross-validation
         local_trial_ids = np.arange(X_subj.shape[0])
 
         # ----------------------------------------------------
         # CROSS-VALIDATION
         # ----------------------------------------------------
 
-        # Esegue la Leave-One-Trial-Out cross-validation
-        # utilizzando Gaussian Naive Bayes.
-        #
+        # Esegue la Leave-One-Trial-Out cross-validation utilizzando Gaussian Naive Bayes
         # La funzione restituisce:
         # - metriche dei singoli fold
         # - media delle metriche
@@ -278,19 +240,15 @@ def run_baseline(dimension="valence"):
         # CORREZIONE ROC AUC
         # ----------------------------------------------------
 
-        # In alcuni casi la ROC AUC può risultare NaN, ad esempio
-        # quando in un fold è presente una sola classe.
-        #
-        # Una ROC AUC pari a 0.5 rappresenta una classificazione
-        # equivalente al caso casuale.        
+        # In alcuni casi la ROC AUC può risultare NaN
+        # Una ROC AUC pari a 0.5 rappresenta una classificazione equivalente al caso casuale     
         if np.isnan(avg_metrics["roc_auc"]):
             avg_metrics["roc_auc"] = 0.5
 
-        # Salva le metriche ottenute per il soggetto corrente.
+        # Salva le metriche ottenute per il soggetto corrente
         results_per_subject[subj] = avg_metrics
 
-
-        # Stampa alcune delle principali metriche.
+        # Stampa alcune delle principali metriche
         print(
             f"  Soggetto {subj}: "
             f"acc={avg_metrics['accuracy']:.3f}  "
@@ -302,28 +260,20 @@ def run_baseline(dimension="valence"):
         # CONFUSION MATRIX
         # ====================================================
 
-        # Addestra un modello Gaussian Naive Bayes utilizzando
-        # tutti i dati del soggetto.
-        #
-        # ATTENZIONE:
-        # questo modello viene utilizzato qui per generare il
-        # grafico e non per calcolare le metriche della
-        # cross-validation.
+        # Addestra un modello Gaussian Naive Bayes utilizzando tutti i dati del soggetto
+        # ATTENZIONE: questo modello viene utilizzato qui per generare il grafico e non per calcolare le metriche della cross-validation
         model = train_gaussian_nb(X_subj, y_subj)
 
-        # Predice le classi sugli stessi dati utilizzati
-        # per l'addestramento.
+        # Predice le classi sugli stessi dati utilizzati per l'addestramento
         y_pred = model.predict(X_subj)
 
-
-        # Costruisce il percorso in cui salvare la confusion matrix.
+        # Costruisce il percorso in cui salvare la confusion matrix
         cm_path = os.path.join(
             FIGURES_DIR,
             f"baseline_cm_{dimension}_{subj}.png"
         )
 
-
-        # Genera e salva la matrice di confusione.
+        # Genera e salva la matrice di confusione
         plot_confusion_matrix(
             y_subj,
             y_pred,
@@ -336,11 +286,8 @@ def run_baseline(dimension="valence"):
     # METRICHE COMPLESSIVE
     # ========================================================
 
-    # Calcola la media delle metriche ottenute sui diversi
-    # soggetti.
-    #
-    # next(iter(...)) permette di recuperare le chiavi presenti
-    # nel dizionario delle metriche, ad esempio:
+    # Calcola la media delle metriche ottenute sui diversi soggetti
+    # next(iter(...)) permette di recuperare le chiavi presenti nel dizionario delle metriche, ad esempio:
     # accuracy, precision, recall, f1, roc_auc...
     overall = {
         key: float(
@@ -351,7 +298,6 @@ def run_baseline(dimension="valence"):
         )
         for key in next(iter(results_per_subject.values()))
     }
-
 
     # Salva su file JSON:
     # - le metriche di ogni soggetto
@@ -367,8 +313,7 @@ def run_baseline(dimension="valence"):
         ),
     )
 
-
-    # Restituisce le metriche complessive.
+    # Restituisce le metriche complessive
     return overall
 
 
@@ -394,12 +339,11 @@ def run_custom(dimension="valence"):
     # CARICAMENTO DATASET
     # --------------------------------------------------------
 
-    # Carica nuovamente i segnali EEG e le relative etichette.
+    # Carica nuovamente i segnali EEG e le relative etichette
     X, y_raw, subject_ids = load_deap_dataset(
         RAW_DIR,
         eeg_only=True
     )
-    
     X = filter_data(X)
 
 
@@ -407,10 +351,8 @@ def run_custom(dimension="valence"):
     # SEGMENTAZIONE
     # --------------------------------------------------------
 
-    # Divide i segnali in segmenti più brevi rispetto alla baseline:
-    # 15 secondi invece di 60.
-    #
-    # Anche in questo caso non viene utilizzata sovrapposizione.
+    # Divide i segnali in segmenti più brevi rispetto alla baseline: 15 secondi invece di 60
+    # Anche in questo caso non viene utilizzata sovrapposizione
     segments, trial_idx = segment_signal(
         X,
         segment_length=15,
@@ -422,10 +364,8 @@ def run_custom(dimension="valence"):
     # NORMALIZZAZIONE
     # --------------------------------------------------------
 
-    # Normalizza i segmenti EEG prima dell'estrazione delle feature.
-    #
-    # La normalizzazione permette di ridurre differenze di scala
-    # tra segnali/soggetti e rendere le feature più confrontabili.
+    # Normalizza i segmenti EEG prima dell'estrazione delle feature
+    # La normalizzazione permette di ridurre differenze di scala tra segnali/soggetti e rendere le feature più confrontabili
     segments_norm = normalize_signal(segments)
 
 
@@ -433,7 +373,7 @@ def run_custom(dimension="valence"):
     # ESTRAZIONE DELLE FEATURE
     # --------------------------------------------------------
 
-    # Estrae le feature dai segnali normalizzati.
+    # Estrae le feature dai segnali normalizzati
     X_features, y_valence_seg, y_arousal_seg, subj_seg = extract_features(
         segments_norm,
         y_raw,
@@ -441,8 +381,7 @@ def run_custom(dimension="valence"):
         subject_ids
     )
 
-
-    # Seleziona la dimensione emotiva da classificare.
+    # Seleziona la dimensione emotiva da classificare
     y_seg = (
         y_valence_seg
         if dimension == "valence"
@@ -454,11 +393,8 @@ def run_custom(dimension="valence"):
     # CLASSIFICATORI
     # ========================================================
 
-    # Dizionario che associa il nome del classificatore
-    # alla relativa funzione di addestramento.
-    #
-    # In questo modo è possibile iterare automaticamente
-    # sui diversi modelli senza duplicare il codice.
+    # Dizionario che associa il nome del classificatore alla relativa funzione di addestramento
+    # In questo modo è possibile iterare automaticamente sui diversi modelli senza duplicare il codice
     classifiers = {
         "svm": train_svm,
         "knn": train_knn,
@@ -466,9 +402,7 @@ def run_custom(dimension="valence"):
         "decision_tree": train_decision_tree,
     }
 
-
-    # Dizionario che conterrà le metriche finali di ogni
-    # classificatore.
+    # Dizionario che conterrà le metriche finali di ogni classificatore
     all_results = {}
 
 
@@ -476,7 +410,7 @@ def run_custom(dimension="valence"):
     # CONFRONTO DEI CLASSIFICATORI
     # ========================================================
 
-    # Esegue la pipeline per ogni classificatore.
+    # Esegue la pipeline per ogni classificatore
     for name, train_fn in classifiers.items():
 
         print(f"\n--- {name.upper()} ---")
@@ -486,14 +420,9 @@ def run_custom(dimension="valence"):
         # SUBJECT-INDEPENDENT CROSS-VALIDATION
         # ----------------------------------------------------
 
-        # Esegue una cross-validation subject-independent.
-        #
-        # n_splits=5 significa che il dataset viene suddiviso
-        # in 5 fold.
-        #
-        # L'obiettivo è evitare che dati appartenenti allo stesso
-        # soggetto siano contemporaneamente presenti nel training
-        # e nel test.
+        # Esegue una cross-validation subject-independent
+        # n_splits=5 significa che il dataset viene suddiviso in 5 fold
+        # L'obiettivo è evitare che dati appartenenti allo stesso soggetto siano contemporaneamente presenti nel training e nel test
         fold_metrics, avg = cross_validate_subject_independent(
             train_fn,
             X_features,
@@ -502,17 +431,14 @@ def run_custom(dimension="valence"):
             n_splits=5
         )
 
-
-        # Corregge eventuali valori NaN della ROC AUC.
+        # Corregge eventuali valori NaN della ROC AUC
         if np.isnan(avg["roc_auc"]):
             avg["roc_auc"] = 0.5
 
-
-        # Salva le metriche medie associate al classificatore.
+        # Salva le metriche medie associate al classificatore
         all_results[name] = avg
 
-
-        # Mostra accuracy e F1-score nel terminale.
+        # Mostra accuracy e F1-score nel terminale
         print(
             f"  acc={avg['accuracy']:.3f}  "
             f"f1={avg['f1']:.3f}"
@@ -523,15 +449,11 @@ def run_custom(dimension="valence"):
         # GRAFICI
         # ====================================================
 
-        # Addestra il classificatore sull'intero dataset.
-        #
-        # Anche qui questo modello viene utilizzato per creare
-        # i grafici finali e NON per calcolare le metriche della
-        # cross-validation.
+        # Addestra il classificatore sull'intero dataset
+        # Anche qui questo modello viene utilizzato per creare i grafici finali e NON per calcolare le metriche della cross-validation
         model = train_fn(X_features, y_seg)
 
-
-        # Predice le classi sull'intero dataset.
+        # Predice le classi sull'intero dataset
         y_pred = model.predict(X_features)
 
 
@@ -539,14 +461,13 @@ def run_custom(dimension="valence"):
         # CONFUSION MATRIX
         # ----------------------------------------------------
 
-        # Costruisce il percorso del file PNG.
+        # Costruisce il percorso del file PNG
         cm_path = os.path.join(
             FIGURES_DIR,
             f"custom_cm_{dimension}_{name}.png"
         )
 
-
-        # Genera e salva la matrice di confusione.
+        # Genera e salva la matrice di confusione
         plot_confusion_matrix(
             y_seg,
             y_pred,
@@ -559,26 +480,21 @@ def run_custom(dimension="valence"):
         # ROC CURVE
         # ----------------------------------------------------
 
-        # Controlla se il modello dispone del metodo predict_proba.
-        #
-        # Questo metodo permette di ottenere la probabilità
-        # stimata per ciascuna classe.
+        # Controlla se il modello dispone del metodo predict_proba
+        # Questo metodo permette di ottenere la probabilità stimata per ciascuna classe
         if hasattr(model, "predict_proba"):
 
-            # Prende la probabilità della classe positiva.
-            # [:, 1] seleziona la seconda colonna, cioè la
-            # probabilità della classe 1.
+            # Prende la probabilità della classe positiva
+            # [:, 1] seleziona la seconda colonna, cioè la probabilità della classe 1
             y_score = model.predict_proba(X_features)[:, 1]
 
-
-            # Percorso in cui salvare il grafico ROC.
+            # Percorso in cui salvare il grafico ROC
             roc_path = os.path.join(
                 FIGURES_DIR,
                 f"custom_roc_{dimension}_{name}.png"
             )
 
-
-            # Genera e salva la curva ROC.
+            # Genera e salva la curva ROC
             plot_roc_curve(
                 y_seg,
                 y_score,
@@ -591,7 +507,7 @@ def run_custom(dimension="valence"):
     # SALVATAGGIO DELLE METRICHE
     # ========================================================
 
-    # Salva in formato JSON le metriche di tutti i classificatori.
+    # Salva in formato JSON le metriche di tutti i classificatori
     save_metrics_json(
         all_results,
         os.path.join(
@@ -605,28 +521,21 @@ def run_custom(dimension="valence"):
     # SELEZIONE DEL MODELLO MIGLIORE
     # ========================================================
 
-    # Seleziona il classificatore che ha ottenuto il valore
-    # di F1-score più alto.
-    #
-    # max(..., key=...) confronta i valori di F1 contenuti
-    # nel dizionario all_results.
+    # Seleziona il classificatore che ha ottenuto il valore di F1-score più alto
+    # max(..., key=...) confronta i valori di F1 contenuti nel dizionario all_results
     best_name = max(
         all_results,
         key=lambda k: all_results[k]["f1"]
     )
 
-
-    # Riaddestra il miglior classificatore sull'intero dataset.
+    # Riaddestra il miglior classificatore sull'intero dataset
     best_model = classifiers[best_name](
         X_features,
         y_seg
     )
 
-
-    # Salva il modello addestrato in formato .pkl.
-    #
-    # Il file potrà essere successivamente caricato senza
-    # dover riaddestrare il modello.
+    # Salva il modello addestrato in formato .pkl
+    # Il file potrà essere successivamente caricato senza dover riaddestrare il modello
     save_model_pickle(
         best_model,
         os.path.join(
@@ -635,8 +544,7 @@ def run_custom(dimension="valence"):
         ),
     )
 
-
-    # Restituisce le metriche di tutti i classificatori.
+    # Restituisce le metriche di tutti i classificatori
     return all_results
 
 
@@ -644,8 +552,7 @@ def run_custom(dimension="valence"):
 # MAIN
 # ============================================================
 
-# Questa condizione verifica che il file venga eseguito
-# direttamente e non importato come modulo da un altro file.
+# Questa condizione verifica che il file venga eseguito direttamente e non importato come modulo da un altro file
 if __name__ == "__main__":
 
     # Esegue entrambe le dimensioni emotive considerate:
@@ -653,13 +560,11 @@ if __name__ == "__main__":
     # - arousal
     for dim in ["valence", "arousal"]:
 
-        # Esegue la pipeline baseline.
+        # Esegue la pipeline baseline
         run_baseline(dimension=dim)
 
-        # Esegue la pipeline custom.
+        # Esegue la pipeline custom
         run_custom(dimension=dim)
 
-
-    # Messaggio finale visualizzato quando tutte le elaborazioni
-    # sono state completate.
+    # Messaggio finale visualizzato quando tutte le elaborazioni sono state completate
     print("\n=== Pipeline completata ===")
